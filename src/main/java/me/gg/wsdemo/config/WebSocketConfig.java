@@ -18,15 +18,15 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/stomp").withSockJS();
-//        registry.addEndpoint("/stomp").setAllowedOrigins("*").withSockJS();
+//        registry.addEndpoint("/stomp").withSockJS();
+        registry.addEndpoint("/stomp").setAllowedOrigins("*").withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
         registry.enableSimpleBroker("/topic", "/user");
-//        registry.setUserDestinationPrefix("/user");
+        registry.setUserDestinationPrefix("/user"); // default: "/user/"
         registry.setPathMatcher(new AntPathMatcher("."));
     }
 }

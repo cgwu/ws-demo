@@ -46,29 +46,29 @@ public class WebSocketController {
     /* WebSocket请求方法 */
     @MessageMapping("bar.{baz}")
     public void handleBaz(@DestinationVariable String baz) {
-        log.info("服务器接收到WebSocket消息: $baz");
+        log.info("服务器接收到WebSocket消息: {}", baz);
     }
 
     @MessageMapping("logbody")
     public void logMsg(@Payload String body, @Header("priority") String priority,
                        @Headers Map<String, Object> headers) {
-        log.info("服务器接收到WebSocket消息体内容: $body");
-        log.info("优先级: $priority");
-        log.info("所有头部: $headers");
+        log.info("服务器接收到WebSocket消息体内容: {}", body);
+        log.info("优先级: {}", priority);
+        log.info("所有头部: {}", headers);
         producer.sendMessageTo("user1", body);
     }
 
     // 1.x测试发现: @DestinationVariable 和 @Header,@Payload 不能同时使用,否则前者取值错误.
     @MessageMapping("user")
-    public void sendtouser(@Header("userId") String userId, @Payload String body) {
-        log.info("发送消息到用户: $userId, Msg: $body");
+    public void sendToUser(@Header("userId") String userId, @Payload String body) {
+        log.info("发送消息到用户: {}, Msg: {}", userId, body);
         // 此类消息客户端应使用的订阅路径template为: /user/{userId}/msg
         template.convertAndSendToUser(userId, "/msg", body);
     }
 
     @MessageMapping("topic")
     public void broadcast(@Payload String body) {
-        log.info("广播消息: $body");
+        log.info("广播消息: {}", body);
         template.convertAndSend("/topic", body);
     }
 
