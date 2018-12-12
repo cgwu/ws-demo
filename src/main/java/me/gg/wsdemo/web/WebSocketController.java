@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.gg.wsdemo.component.WebSocketProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.*;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +46,10 @@ public class WebSocketController {
 
     /* WebSocket请求方法 */
     @MessageMapping("bar.{baz}")
-    public void handleBaz(@DestinationVariable String baz) {
+    public void handleBaz(@DestinationVariable String baz, SimpMessageHeaderAccessor headerAccessor) {
+        // headerAccessor.getSessionId() 与客户端的session-id一致.
+        Map<String, Object> attrs = headerAccessor.getSessionAttributes();
+        log.info("id: {}, sessionId: {}, attrs: {}",headerAccessor.getId(), headerAccessor.getSessionId(), attrs.size());
         log.info("服务器接收到WebSocket消息: {}", baz);
     }
 

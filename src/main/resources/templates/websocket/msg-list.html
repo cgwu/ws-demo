@@ -50,10 +50,15 @@
 		$(document).ready(function() {
 			var messageList = $("#messages");
 			var socket = new SockJS(ctxPath+'/stomp');    // use SockJS
-			//var socket = new WebSocket('ws://192.168.50.100:8080/stomp');
 			var stompClient = Stomp.over(socket);
 			stompClient.debug = false;  //发布阶段不要注释该行
-			stompClient.connect({}, function(frame) {
+			var headers = {
+              login: 'mylogin',
+              passcode: 'mypasscode',
+              // additional header
+              'client-id': 'my-client-id'
+            };
+			stompClient.connect(headers, function(frame) {
 				gsc = stompClient;
 
 				stompClient.subscribe("/topic" , function(data) {

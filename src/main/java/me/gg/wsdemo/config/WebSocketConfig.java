@@ -1,34 +1,43 @@
 package me.gg.wsdemo.config;
 
+import me.gg.wsdemo.component.MyWsHandler;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.util.AntPathMatcher;
+import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
+import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 /**
- * ref: https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#websocket
- * STOMP: Simple (or Streaming) Text Orientated Messaging Protocol.
+ * Created by sam on 18-12-12.
  */
 @Configuration
-//@EnableWebSocket
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-//        registry.addEndpoint("/stomp").withSockJS();
-        registry.addEndpoint("/stomp").setAllowedOrigins("*").withSockJS();
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(myHandler(), "/myHandler")
+                .setAllowedOrigins("http://www.websocket.org", "*")
+                .addInterceptors(new HttpSessionHandshakeInterceptor());
+//                .withSockJS();    // 使用SockJS客户端访问
     }
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic", "/user");
-        registry.setUserDestinationPrefix("/user"); // default: "/user/"
-        registry.setPathMatcher(new AntPathMatcher("."));
+
+    @Bean
+    public ServletServerContainerFactoryBean createWebSocketContainer() {
+        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+        container.setMaxTextMessageBufferSize(8192);
+        container.setMaxBinaryMessageBufferSize(8192);
+        container.setMaxSessionIdleTimeout(1000L * 60 * 60 * 24 * 365); // 1 year.
+        return container;
     }
+
+
+    @Bean
+    public WebSocketHandler myHandler() {
+        return new MyWsHandler();
+    }
+
 }
-
-
