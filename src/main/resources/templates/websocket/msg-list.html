@@ -53,25 +53,32 @@
 			var stompClient = Stomp.over(socket);
 			stompClient.debug = false;  //发布阶段不要注释该行
 			var headers = {
-              login: 'mylogin',
-              passcode: 'mypasscode',
+              username: userId,
+              password: 'mypasscode',
               // additional header
               'client-id': 'my-client-id'
             };
-			stompClient.connect(headers, function(frame) {
-				gsc = stompClient;
+			stompClient.connect(
+                headers,
+                function(frame) {
+                   console.log("STOMP connect success");
+                    gsc = stompClient;
 
-				stompClient.subscribe("/topic" , function(data) {
-					var message = data.body;
-					messageList.append("<li>topic: " + message + "</li>");
-				});
+                    stompClient.subscribe("/topic" , function(data) {
+                        var message = data.body;
+                        messageList.append("<li>topic: " + message + "</li>");
+                    });
 
-				stompClient.subscribe("/user/" + userId + '/msg', function(data) {
-					var message = data.body;
-					messageList.append("<li>user: " + message + "</li>");
-				});
+                    stompClient.subscribe("/user/" + userId + '/msg', function(data) {
+                        var message = data.body;
+                        messageList.append("<li>user: " + message + "</li>");
+                    });
 
-			});
+                },
+                function(error) {
+                    console.log("STOMP connect error");
+                }
+			);
 
 			$("#btnSendApp").click(function(){
 				if(gsc) {

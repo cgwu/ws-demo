@@ -1,8 +1,10 @@
 package me.gg.wsdemo.config;
 
 import me.gg.wsdemo.component.MyWsHandshakeInterceptor;
+import me.gg.wsdemo.component.UserChannelInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.util.AntPathMatcher;
@@ -19,6 +21,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class StompOnWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     private MyWsHandshakeInterceptor myWsHandshakeInterceptor;
+
+    @Autowired
+    private UserChannelInterceptor userChannelInterceptor;
 
     private TaskScheduler messageBrokerTaskScheduler;
 
@@ -45,6 +50,9 @@ public class StompOnWebSocketConfig implements WebSocketMessageBrokerConfigurer 
         //        registry.setUserDestinationPrefix("/user"); // default: "/user/"
     }
 
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registry) {
+        registry.interceptors(userChannelInterceptor);
+    }
+
 }
-
-
