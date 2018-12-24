@@ -28,11 +28,16 @@ public class UserChannelInterceptor implements ChannelInterceptor {
         if(accessor.getCommand()!=null) {
             switch (accessor.getCommand()) {
                 case CONNECT:
-                    Object raw = message.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
-                    String strRawHead = JSON.toJSONString(raw);
-                    //ref: https://blog.csdn.net/liupeifeng3514/article/details/79180154
-                    Object name = JSONPath.extract(strRawHead, "$.username[0]");
-                    log.debug("Connect Frame Raw Header: {}", strRawHead);
+                        Object raw = message.getHeaders().get(SimpMessageHeaderAccessor.NATIVE_HEADERS);
+                        Object name = null;
+                        try {
+                            String strRawHead = JSON.toJSONString(raw);
+                            log.info("STOMP connect Raw Header: {}", strRawHead);
+                            //ref: https://blog.csdn.net/liupeifeng3514/article/details/79180154
+                            name = JSONPath.extract(strRawHead, "$.username[0]");
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        }
                     log.info("username: {}", name);
                     if (name == null || !name.toString().startsWith("00")) return null;  // TODO: 测试验证
                     else {
@@ -42,8 +47,7 @@ public class UserChannelInterceptor implements ChannelInterceptor {
                     break;
 
                 case DISCONNECT:
-                    log.info("COMMAND: {}, 当前用户:{}, sessionId: {}, Id: {}", accessor.getCommand(), accessor.getUser().getName(),
-                            accessor.getSessionId(), accessor.getId());
+                    log.info("COMMAND: {}, Id: {}, 当前用户:{}", accessor.getCommand(), accessor.getId(), accessor.getUser());
                     break;
 
                 case SEND:

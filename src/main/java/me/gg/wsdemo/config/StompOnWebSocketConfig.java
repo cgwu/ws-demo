@@ -11,6 +11,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 /**
  * ref: https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#websocket
@@ -43,11 +44,13 @@ public class StompOnWebSocketConfig implements WebSocketMessageBrokerConfigurer 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic", "/user")
-                .setHeartbeatValue(new long[]{5000, 5000})  // 设置心跳
-                .setTaskScheduler(this.messageBrokerTaskScheduler);
+        registry.enableSimpleBroker("/topic", "/user");
+//                .setHeartbeatValue(new long[]{5000, 5000})  // 设置心跳
+//                .setTaskScheduler(this.messageBrokerTaskScheduler);
         registry.setPathMatcher(new AntPathMatcher("."));
-        //        registry.setUserDestinationPrefix("/user"); // default: "/user/"
+
+//        config.enableStompBrokerRelay("/topic", "/queue", "/exchange"); // Uncomment for external message broker (ActiveMQ, RabbitMQ)
+        registry.setUserDestinationPrefix("/user"); // default: "/user/"
     }
 
     @Override
@@ -55,4 +58,8 @@ public class StompOnWebSocketConfig implements WebSocketMessageBrokerConfigurer 
         registry.interceptors(userChannelInterceptor);
     }
 
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+        registry.setMessageSizeLimit(8 * 1024);
+    }
 }
